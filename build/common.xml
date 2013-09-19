@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<project name="Symfony_Build_Common" default="deploy" basedir="../">
+	
+	<!-- ==================================================================== -->
+	<!-- Cleans the directories with the generated source files				  -->
+	<!-- ==================================================================== -->
+	<target name="clean" description="Cleans almost everything, so use carefully.">
+		<delete dir="${php-target.dir}" includeemptydirs="true" quiet="false" verbose="true" failonerror="true"/>
+	</target>
+		
+	<!-- ==================================================================== -->
+	<!-- Prepares all the required directories								  -->
+	<!-- ==================================================================== -->
+	<target name="prepare" depends="clean" description="Prepares all the required directories.">
+		<mkdir dir="${php-target.dir}" />
+	</target>
+	
+	<!-- ==================================================================== -->
+	<!-- Copies the sources to the target directory							  -->
+	<!-- ==================================================================== -->
+	<target name="copy" depends="prepare" description="Copies the sources to the target directory.">
+        <copy todir="${php-target.dir}/${unique.name}">
+            <fileset dir="${php-src.dir}">
+                <include name="**/*.xml" />
+                <include name="**/*.xml.dist" />
+                <include name="**/*.xml.local" />
+            </fileset>
+            <filterchain>
+                <expandproperties/>
+            </filterchain>
+        </copy> 
+        <copy todir="${php-target.dir}/${unique.name}">
+            <fileset dir="${php-src.dir}">
+                <include name="**/*" />
+                <exclude name="**/*.xml" />
+                <exclude name="**/*.xml.dist" />
+                <exclude name="**/*.xml.local" />
+            </fileset>
+        </copy>           
+	</target>
+
+	<!-- ==================================================================== -->
+	<!-- Copies the sources to the deploy directory     					  -->
+	<!-- ==================================================================== -->
+	<target name="deploy" depends="copy" description="Copies the sources to the deploy directory.">
+		<copy todir="${dir.www}/${deploy.dir}/">
+			<fileset dir="${php-target.dir}/${unique.name}">
+				<include name="**"/>
+			</fileset>
+		</copy>
+	</target>
+
+</project>

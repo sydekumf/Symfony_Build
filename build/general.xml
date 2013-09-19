@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<project name="Symfony_Build" basedir=".">
+
+    <property file="build/general.properties"/>
+    <property file="build/${os}.properties"/>
+
+    <property name="pear.dir" value="${basedir}/pear" />
+    <property name="php-src.dir" value="${basedir}/src" />
+    <property name="php-test.dir" value="${basedir}/dev" />
+    <property name="php-target.dir" value="${basedir}/target"/>
+	
+	<!-- ==================================================================== -->
+	<!-- Import the magento specific build configuration file	 			  -->
+	<!-- ==================================================================== -->
+	<import file="common.xml"/>
+    <import file="common/instance.xml"/>
+
+</project>

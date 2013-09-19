@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<project name="Symfony_Build_Instance" basedir="common">
+
+    <!-- define the instance specific property file -->
+    <property file="build/common/instance.properties"/>
+
+    <!-- ==================================================================== -->
+    <!-- Deletes the magento instance for testing purpose   			 	  -->
+    <!-- ==================================================================== -->
+    <target name="delete-instance">
+        <delete dir="${basedir}/instance-src" includeemptydirs="true" quiet="false" verbose="false" failonerror="true"/>
+        <delete dir="${dir.www}/${instance.dir}" includeemptydirs="true" quiet="false" verbose="false" failonerror="true"/>
+    </target>
+
+	<!-- ==================================================================== -->
+	<!-- Initializing a symfony instance for testing purpose   			 	  -->
+	<!-- ==================================================================== -->
+	<target name="init-instance" unless="${instance.present}" description="Creats a symfony instance for testing purpose">
+        <!-- prepare the folder structure -->
+        <antcall target="prepare" />
+
+        <!-- delete the old instance -->
+        <echo message="Delete existing symfony ${dir.www}/${instance.dir} source..."/>
+        <antcall target="delete-instance"/>
+
+        <!-- download the symfony sources -->
+		<echo message="Preparing symfony ${dir.www}/${instance.dir} source..."/>
+		<antcall target="get-symfony-src" />
+
+        <!-- extract the the symfony sources to the temporary directory -->
+		<exec dir="${instance.base.dir.tmp}" executable="${bin.extract}">
+			<arg line="${bin.extract.args}"/>
+			<arg line="${instance.base.dir.tmp}/${instance.download.file}"/>
+		</exec>
+
+        <!-- move all other files WITHOUT expanding properties -->
+        <move todir="${dir.www}/${instance.dir}">
+            <fileset dir="${instance.base.dir.tmp}/Symfony">
+                <include name="**/*" />
+                <exclude name="bin" />
+            </fileset>
+        </move>
+
+        <!-- create bin dir by hand -->
+        <mkdir dir="${dir.www}/${instance.dir}/bin" />
+        <exec executable="/bin/ln" >
+            <arg value="-s"/>
+            <arg value="../vendor/doctrine/orm/bin/doctrine"/>
+            <arg value="${dir.www}/${instance.dir}/bin/doctrine"/>
+        </exec>
+
+        <exec executable="/bin/ln" >
+            <arg value="-s"/>
+            <arg value="../vendor/doctrine/orm/bin/doctrine.php"/>
+            <arg value="${dir.www}/${instance.dir}/bin/doctrine.php"/>
+        </exec>
+
+        <!-- update vendors via composer -->
+        <exec dir="${dir.www}/${instance.dir}" executable="${bin.composer}">
+            <arg line="update"/>
+        </exec>
+
+        <!-- delete cache and logs directories' content -->
+        <delete includeemptydirs="true" quiet="false" verbose="false" failonerror="true">
+            <fileset dir="${dir.www}/${instance.dir}/app/cache" includes="**/*"/>
+            <fileset dir="${dir.www}/${instance.dir}/app/logs" includes="**/*"/>
+        </delete>
+
+        <!-- set permissions for cache and logs directories -->
+        <exec executable="chmod" dir="${dir.www}/${instance.dir}" failonerror="true">
+            <arg line="+a '_www allow delete,write,append,file_inherit,directory_inherit' app/cache app/logs" />
+        </exec>
+
+        <!-- link to instance src -->
+        <exec executable="/bin/ln" >
+            <arg value="-s"/>
+            <arg value="${dir.www}/${instance.dir}"/>
+            <arg value="${basedir}/instance-src"/>
+        </exec>
+
+        <!-- create parameters.yml -->
+        <echo file="${dir.www}/${instance.dir}/app/config/parameters.yml" append="false">parameters:
+    database_driver: pdo_mysql
+    database_host: ${mysql.host}
+    database_port: null
+    database_name: ${mysql.database}
+    database_user: ${mysql.username}
+    database_password: ${mysql.password}
+    mailer_transport: ${param.mailer.transport}
+    mailer_host: ${param.mailer.host}
+    mailer_user: ${param.mailer.username}
+    mailer_password: ${param.mailer.password}
+    locale: ${param.locale}
+    secret: ${param.secret}
+        </echo>
+
+        <!-- create database -->
+        <exec dir="${dir.www}/${instance.dir}" executable="${bin.php}">
+            <arg line="app/console doctrine:database:drop --force" />
+        </exec>
+        <exec dir="${dir.www}/${instance.dir}" executable="${bin.php}">
+            <arg line="app/console doctrine:database:create" />
+        </exec>
+
+        <!--<antcall target="delete-demo-bundle" />-->
+	</target>
+
+    <!-- ==================================================================== -->
+    <!-- Deletes Acme demo bundle  		 	                                  -->
+    <!-- ==================================================================== -->
+    <target name="delete-demo-bundle">
+        <!-- generate new app kernel file -->
+        <exec executable="${bin.pear}">
+            <arg line="generate-app-kernel -T ${dir.www}/${instance.dir}"/>
+        </exec>
+
+        <!-- generate new routing_dev.yml file -->
+        <exec executable="${bin.pear}">
+            <arg line="generate-routing-dev-yml -T ${dir.www}/${instance.dir}"/>
+        </exec>
+
+        <!-- delete demo bundle sources-->
+        <delete dir="${dir.www}/${instance.dir}/src/Acme" />
+    </target>
+
+    <!-- ==================================================================== -->
+    <!-- Generate bundle        		 	                                  -->
+    <!-- ==================================================================== -->
+    <target name="generate-bundle">
+        <!-- generate bundle -->
+        <input message="Please enter namespace:" addproperty="bundle.namespace" />
+        <exec dir="${dir.www}/${instance.dir}" executable="${bin.php}">
+            <arg line="app/console generate:bundle --namespace=${bundle.namespace} --format=yml --dir=src" />
+        </exec>
+    </target>
+
+	<!-- ==================================================================== -->
+	<!-- Check if Symfony Source Package has been downloaded yet  		 	  -->
+	<!-- ==================================================================== -->
+	<target name="check-symfony-exists">
+	    <available file="${instance.base.dir.tmp}/${instance.download.file}" property="symfony-src.present"/>
+	</target>
+	
+	<!-- ==================================================================== -->
+	<!-- Get Symfony Source Package by given version number		  		 	  -->
+	<!-- ==================================================================== -->
+	<target name="get-symfony-src" depends="check-symfony-exists" unless="symfony-src.present">
+		<echo message="Downloading symfony ${symfony.version}..."/>
+		<mkdir dir="${instance.base.dir.tmp}" />
+		<get src="${instance.download.url}/${instance.download.file}" dest="${instance.base.dir.tmp}/${instance.download.file}"/>
+	</target>
+	
+</project>
