@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<project name="Symfony_App" basedir=".">
+
+    <!-- makes environment variables available -->
+    <property environment="env" />
+
+    <!-- declare user and project specific properties -->
+    <property file="${user.home}/build.properties"/>
+    <property file="build.properties"/>
+    <property file="build.default.properties"/>
+
+    <!-- declare the directory with the build- and deployment stub -->
+    <property name="build.dir" value="${basedir}/build"/>
+
+    <!-- declare project specific variables -->
+    <property name="namespace" value="Symfony"/>
+    <property name="module" value="App"/>
+    <property name="unique.name" value="${namespace}/${module}" />
+
+    <!-- ===================================================================== -->
+    <!-- Import the general build configuration file                           -->
+    <!-- ===================================================================== -->
+    <import file="${build.dir}/general.xml" optional="true"/>
+
+    <!-- ===================================================================== -->
+    <!-- Initialize build and deployment                                       -->
+    <!-- ===================================================================== -->
+    <target name="build-and-deployment">
+        <condition property="build-env.available">
+            <available file="${build.dir}" type="dir"/>
+        </condition>
+        <antcall target="build-and-deployment-init"/>
+        <antcall target="build-and-deployment-update"/>
+        <antcall target="build-clean-up"/>
+    </target>
+
+    <!-- ===================================================================== -->
+    <!-- Clones the build- and deployment stub from Github                     -->
+    <!-- ===================================================================== -->
+    <target name="build-and-deployment-init" unless="build-env.available" description="Clones the the build- and deployment stub from Github">
+        <echo message="Clone project Symfony_Build (build- and deployment stub) from Github..."/>
+        <!-- clone the stub from the git repository -->
+        <exec executable="${bin.git}" outputproperty="git.clone.output">
+            <arg value="clone" />
+            <arg value="${git.clone.repository}" />
+            <arg value="${build.dir}" />
+        </exec>
+        <!-- log the clone message -->
+        <echo>${git.clone.output}</echo>
+    </target>
+
+    <!-- ===================================================================== -->
+    <!-- Updates the build- and deployment stub from Github                    -->
+    <!-- ===================================================================== -->
+    <target name="build-and-deployment-update" if="build-env.available" description="Updates the the build- and deployment stub from Github">
+        <echo message="Update project Symfony_Build (build- and deployment stub) from Github..."/>
+        <!-- pull the stub updates from the git repository -->
+        <exec dir="${build.dir}" executable="${bin.git}" outputproperty="git.pull.output">
+            <arg value="pull" />
+        </exec>
+        <!-- log the pull message -->
+        <echo>${git.pull.output}</echo>
+    </target>
+
+    <!-- ===================================================================== -->
+    <!-- Cleans up the build folder                                            -->
+    <!-- ===================================================================== -->
+    <target name="build-clean-up" unless="build-env.available" description="Cleans up the build folder">
+        <copy file="${build.dir}/build.default.properties" tofile="build.default.properties" overwrite="true"/>
+        <copy todir="${build.dir}" >
+            <fileset dir="${build.dir}/build" includes="**/*"/>
+        </copy>
+        <delete>
+            <fileset dir="${build.dir}" includes="README.md"/>
+            <fileset dir="${build.dir}" includes="build.default.properties"/>
+            <fileset dir="${build.dir}" includes="build.xml"/>
+        </delete>
+        <delete dir="${build.dir}/build"/>
+    </target>
+
+</project>
