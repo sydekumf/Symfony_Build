@@ -65,17 +65,17 @@
     <!-- ===================================================================== -->
     <!-- Cleans up the build folder                                            -->
     <!-- ===================================================================== -->
-    <target name="build-clean-up" unless="build-env.available" description="Cleans up the build folder">
-        <copy file="${build.dir}/build.default.properties" tofile="build.default.properties" overwrite="true"/>
-        <copy todir="${build.dir}" >
+    <target name="build-clean-up" description="Cleans up the build folder">
+        <copy file="${build.dir}/build.default.properties" tofile="build.default.properties" overwrite="true" failonerror="false"/>
+        <copy todir="${build.dir}" failonerror="false">
             <fileset dir="${build.dir}/build" includes="**/*"/>
         </copy>
-        <delete>
+        <delete failonerror="false">
             <fileset dir="${build.dir}" includes="README.md"/>
             <fileset dir="${build.dir}" includes="build.default.properties"/>
             <fileset dir="${build.dir}" includes="build.xml"/>
         </delete>
-        <delete dir="${build.dir}/build"/>
+        <delete dir="${build.dir}/build" failonerror="false"/>
     </target>
 
 </project>
