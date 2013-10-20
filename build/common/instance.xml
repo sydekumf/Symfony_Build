@@ -149,5 +149,16 @@
 		<mkdir dir="${instance.base.dir.tmp}" />
 		<get src="${instance.download.url}/${instance.download.file}" dest="${instance.base.dir.tmp}/${instance.download.file}"/>
 	</target>
+
+    <!-- ==================================================================== -->
+    <!-- Compiles sass to css                                			 	  -->
+    <!-- ==================================================================== -->
+    <target name="sass-compile" if="${sass.compile}" description="Compiles sass to css">
+        <echo message="Compiling sass to css..." />
+        <!-- compile -->
+        <exec dir="${basedir}" executable="compass" >
+            <arg value="compile"/>
+        </exec>
+    </target>
 	
 </project>
