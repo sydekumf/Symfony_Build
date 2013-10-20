@@ -19,6 +19,7 @@
 	<!-- Copies the sources to the target directory							  -->
 	<!-- ==================================================================== -->
 	<target name="copy" depends="prepare" description="Copies the sources to the target directory.">
+        <antcall target="sass-compile" />
         <copy todir="${php-target.dir}/${unique.name}">
             <fileset dir="${php-src.dir}">
                 <include name="**/*.xml" />
