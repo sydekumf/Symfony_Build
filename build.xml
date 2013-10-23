@@ -67,8 +67,12 @@
     <!-- ===================================================================== -->
     <target name="build-clean-up" description="Cleans up the build folder">
         <copy file="${build.dir}/build.default.properties" tofile="build.default.properties" overwrite="true" failonerror="false"/>
+        <copy file="${build.dir}/build.xml" tofile="build.xml" overwrite="true" failonerror="false"/>
         <copy todir="${build.dir}" failonerror="false">
             <fileset dir="${build.dir}/build" includes="**/*"/>
+        </copy>
+        <copy todir="${basedir}/pear" failonerror="false">
+            <fileset dir="${build.dir}/pear" includes="**/*"/>
         </copy>
         <delete failonerror="false">
             <fileset dir="${build.dir}" includes="README.md"/>
@@ -76,6 +80,7 @@
             <fileset dir="${build.dir}" includes="build.xml"/>
         </delete>
         <delete dir="${build.dir}/build" failonerror="false"/>
+        <delete dir="${build.dir}/pear" failonerror="false"/>
     </target>
 
 </project>
