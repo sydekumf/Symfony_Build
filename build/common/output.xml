@@ -37,4 +37,23 @@
         </exec>
     </target>
 
+    <!-- ==================================================================== -->
+    <!-- Uploads the PEAR package                                             -->
+    <!-- ==================================================================== -->
+    <target name="upload-package" depends="create-package" description="Uploads the PEAR package.">
+        <echo message="Releasing ${namespace}_${module}-${release.version}.tgz on ${pear-server}..."/>
+
+        <!-- Use secure copy to upload the package -->
+        <exec dir="${php-target.dir}/${unique.name}" executable="scp">
+            <arg line="${namespace}_${module}-${release.version}.tgz"/>
+            <arg line="${pear-server}:${upload-dir}"/>
+        </exec>
+
+        <!-- Add the package to the pirum server -->
+        <exec executable="ssh">
+            <arg line="${pear-server}"/>
+            <arg line="'pear/pirum add ${pirum-location} ${upload-dir}/${namespace}_${module}-${release.version}.tgz'"/>
+        </exec>
+    </target>
+
 </project>

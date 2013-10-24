@@ -71,6 +71,7 @@
         <copy todir="${build.dir}" failonerror="false">
             <fileset dir="${build.dir}/build" includes="**/*"/>
         </copy>
+        <mkdir dir="${basedir}/pear"/>
         <copy todir="${basedir}/pear" failonerror="false">
             <fileset dir="${build.dir}/pear" includes="**/*"/>
         </copy>
