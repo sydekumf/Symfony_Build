@@ -15,7 +15,7 @@
         <exec dir="${php-target.dir}" executable="${bin.pear}">
             <arg line="generate-contents -T ${pear.dir}/package2.xml -S ${php-target.dir}/${unique.name} -D ${php-target.dir} -M ${unique.name}"/>
         </exec>
-        <copy tofile="${php-target.dir}/${unique.name}/package2.xml" file="${php-target.dir}/package2.xml">
+        <copy tofile="${php-target.dir}/${unique.name}/package.xml" file="${php-target.dir}/package2.xml">
             <filterchain>
                 <expandproperties/>
             </filterchain>
@@ -33,7 +33,7 @@
         </tstamp>
         <!-- create the package -->
         <exec dir="${php-target.dir}/${unique.name}" executable="${bin.pear}" failonerror="true">
-            <arg line="mage-package package2.xml"/>
+            <arg line="mage-package package.xml"/>
         </exec>
     </target>
 
