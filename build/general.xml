@@ -14,5 +14,6 @@
 	<!-- ==================================================================== -->
 	<import file="common.xml"/>
     <import file="common/instance.xml"/>
+    <import file="common/output.xml"/>
 
 </project>

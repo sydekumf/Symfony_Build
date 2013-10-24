@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<project name="Symfony_Build_Output" basedir="common">
+
+    <!-- ==================================================================== -->
+    <!-- Copies the package definition file to the target directory and		  -->
+    <!-- completes the contents node in package2.xml						  -->
+    <!-- ==================================================================== -->
+    <target name="pre-package" depends="copy" description="Copies the package definition file to the target directory.">
+        <tstamp>
+            <format property="actual.date" pattern="yyyy-MM-dd" locale="en" />
+        </tstamp>
+        <tstamp>
+            <format property="actual.time" pattern="hh:mm:ss" locale="en" />
+        </tstamp>
+        <exec dir="${php-target.dir}" executable="${bin.pear}">
+            <arg line="generate-contents -T ${pear.dir}/package2.xml -S ${php-target.dir}/${unique.name} -D ${php-target.dir} -M ${unique.name}"/>
+        </exec>
+        <copy tofile="${php-target.dir}/${unique.name}/package2.xml" file="${php-target.dir}/package2.xml">
+            <filterchain>
+                <expandproperties/>
+            </filterchain>
+        </copy>
+    </target>
+
+    <!-- ==================================================================== -->
+    <!-- Generates the PEAR package                                           -->
+    <!-- ==================================================================== -->
+    <target name="create-package" depends="pre-package" description="Generates the PEAR package.">
+        <!-- create package and release version -->
+        <tstamp>
+            <format property="actual.date" pattern="yyyy-MM-dd" locale="en" />
+            <format property="actual.time" pattern="hh:mm:ss" locale="en" />
+        </tstamp>
+        <!-- create the package -->
+        <exec dir="${php-target.dir}/${unique.name}" executable="${bin.pear}" failonerror="true">
+            <arg line="mage-package package2.xml"/>
+        </exec>
+    </target>
+
+</project>
